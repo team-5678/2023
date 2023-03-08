@@ -40,6 +40,10 @@ public class Robot extends TimedRobot {
 
   Spark m_elevator = new Spark(2);
 
+  Spark m_left_claw = new Spark(3);
+
+  Spark m_right_claw = new Spark(4);
+
   DifferentialDrive m_drive = new DifferentialDrive(m_left, m_right);
 
   DigitalInput toplimitSwitch = new DigitalInput(9);
@@ -131,51 +135,57 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    prevTimeElapsed = timeElapsed;
-    timeElapsed = timer.get();
-    double elesp = joystick.getRawButton(1) ? 1 : .5;
+
+    /**
+     * Setting constants
+     */
+    double driveSpeed = .7;
+    double elevatorSpeed = .5;
+    double clawSpeed = .5;
+    Boolean sprintButtonPressed = joystick.getRawButton(3);
+
+    /**
+     * Elevator control
+     */
     switch (joystick.getPOV()) {
+      // If POV pointed up
       case 180:
-        bottomHasBeenPressed = true;
         if (!bottomlimitSwitch.get()) {
+          // If bottom limit switch is activated, set speed zero
           System.out.println("LIMB");
-          topHasBeenPressed = false;
-          m_elevator.set(-.3);
-        } else if (topHasBeenPressed) {
+          m_elevator.set(0);
+        } else {
+          // Otherwise, set speed to elevatorSpeed
           System.out.println("U");
-          m_elevator.set(elesp);
-        } else {
-          m_elevator.set(0);
+          m_elevator.set(elevatorSpeed);
         }
         break;
+      // If POV pointed down
       case 0:
-        topHasBeenPressed = true;
         if (!toplimitSwitch.get()) {
+          // If top limit switch is activated, set speed zero
           System.out.println("LIMT");
-          bottomHasBeenPressed = false;
-          m_elevator.set(.3);
-        } else if (bottomHasBeenPressed) {
-          System.out.println("D");
-          m_elevator.set(-elesp);
-        } else {
           m_elevator.set(0);
+        } else {
+          // Otherwise, set speed to elevatorSpeed
+          System.out.println("D");
+          m_elevator.set(-elevatorSpeed);
         }
         break;
+      // Otherwise, set speed to zero
       default:
-        // System.out.println(".");
         m_elevator.set(0);
-        if (!bottomlimitSwitch.get()) {
-          m_elevator.set(-.3);
-        } else if (!toplimitSwitch.get()) {
-          m_elevator.set(.3);
-        }
         break;
     }
-    Boolean b = joystick.getRawButton(2);
-    double sp = .7;
-    prevTwist = twist;
-    twist = joystick.getTwist();
-    double dtwist = MathUtil.clamp(((twist - prevTwist)) / .1, -1, 1);
+
+    /**
+     * Code for twist control; deprecated
+     */
+    // prevTwist = twist;
+    // twist = joystick.getTwist();
+    // double dtwist = MathUtil.clamp(((twist - prevTwist)) / .1, -1, 1);
+    // prevTimeElapsed = timeElapsed;
+    // timeElapsed = timer.get();
     // System.out.println(
     // String.format("Twist: %f, prevTwist: %f, timeElapsed: %f, prevTimeElapsed:
     // %f, dtwist: %f, %f, %f, %f", twist,
@@ -184,8 +194,31 @@ public class Robot extends TimedRobot {
     // prevTimeElapsed),
     // (twist - prevTwist) / (timeElapsed - prevTimeElapsed)));
 
-    m_drive.arcadeDrive(joystick.getX() * (b ? 1 : sp)/* * ((Math.cos(timeElapsed * 10) + 1) / 2) */,
-        joystick.getY() * (b ? 1 : sp)/* * ((Math.cos(timeElapsed * 10) + 1) / 2) */ /* + dtwist */);
+    /**
+     * Drive control
+     */
+    m_drive.arcadeDrive(
+        joystick.getX() * (sprintButtonPressed ? 1 : driveSpeed)/* * ((Math.cos(timeElapsed * 10) + 1) / 2) */,
+        joystick.getY()
+            * (sprintButtonPressed ? 1 : driveSpeed)/* * ((Math.cos(timeElapsed * 10) + 1) / 2) */ /* + dtwist */);
+
+    /**
+     * Intake control
+     */
+    if (joystick.getRawButton(1)) {
+      // TODO: Determine if this is the correct sign
+      // If trigger pressed, intake
+      m_left_claw.set(clawSpeed);
+      m_right_claw.set(-clawSpeed);
+    } else if (joystick.getRawButton(2)) {
+      // If button 2 pressed, outtake
+      m_left_claw.set(-clawSpeed);
+      m_right_claw.set(clawSpeed);
+    } else {
+      // Otherwise, set speed to zero
+      m_left_claw.set(0);
+      m_right_claw.set(0);
+    }
   }
 
   /** This function is called once when the robot is disabled. */
