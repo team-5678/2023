@@ -115,6 +115,12 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    // Move forward for 3 seconds, then stop
+    if (timer.get() < 3) {
+      m_drive.arcadeDrive(.25, 0);
+    } else {
+      m_drive.arcadeDrive(0, 0);
+    }
     // switch (m_autoSelected) {
     // case kCustomAuto:
     // // Put custom auto code here
