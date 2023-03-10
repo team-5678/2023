@@ -212,7 +212,7 @@ public class Robot extends TimedRobot {
      * Intake control
      */
     if (joystick.getRawButton(1)) {
-      //TODO: Determine if this is the correct sign
+      
       // If trigger pressed, intake
       m_left_claw.set(clawSpeed);
       m_right_claw.set(clawSpeed);
