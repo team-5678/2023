@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
-import java.lang.Math;
-import edu.wpi.first.math.MathUtil;
+//import java.lang.Math;
+//import edu.wpi.first.math.MathUtil;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -117,7 +117,7 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     // Move forward for 3 seconds, then stop
     if (timer.get() < 3) {
-      m_drive.arcadeDrive(.25, 0);
+      m_drive.arcadeDrive(.5, 0);
     } else {
       m_drive.arcadeDrive(0, 0);
     }
@@ -145,8 +145,8 @@ public class Robot extends TimedRobot {
     /**
      * Setting constants
      */
-    double driveSpeed = .7;
-    double elevatorSpeed = .5;
+    double driveSpeed = 1;
+    double elevatorSpeed = .8;
     double clawSpeed = .5;
     Boolean sprintButtonPressed = joystick.getRawButton(3);
 
@@ -212,14 +212,14 @@ public class Robot extends TimedRobot {
      * Intake control
      */
     if (joystick.getRawButton(1)) {
-      // TODO: Determine if this is the correct sign
+      //TODO: Determine if this is the correct sign
       // If trigger pressed, intake
       m_left_claw.set(clawSpeed);
-      m_right_claw.set(-clawSpeed);
+      m_right_claw.set(clawSpeed);
     } else if (joystick.getRawButton(2)) {
       // If button 2 pressed, outtake
       m_left_claw.set(-clawSpeed);
-      m_right_claw.set(clawSpeed);
+      m_right_claw.set(-clawSpeed);
     } else {
       // Otherwise, set speed to zero
       m_left_claw.set(0);
